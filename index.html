@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Green Roof — жасыл шатырлар және қала температурасы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06110d; --bg2:#0b1d16; --card:#0f241c; --line:rgba(158,240,26,.16);
+  --txt:#e8f5ee; --mut:#9db8aa; --green:#2ee59d; --lime:#b8f34a; --hot:#ff5a36; --amber:#ffb703; --ice:#5ad1ff;
+  --hf:'Unbounded','Inter',system-ui,sans-serif; --bf:'Manrope','Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--bf);font-size:17px;line-height:1.65;overflow-x:hidden}
+a{color:var(--green)}
+svg text{font-family:var(--bf)}
+h1,h2,h3{font-family:var(--hf);line-height:1.15;letter-spacing:-.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:110px 0;position:relative}
+.kicker{font-family:var(--hf);font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--lime);display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.kicker:before{content:"";width:34px;height:2px;background:linear-gradient(90deg,var(--hot),var(--green))}
+h2{font-size:clamp(28px,4vw,48px);margin-bottom:22px}
+.lead{color:var(--mut);font-size:19px;max-width:760px}
+.grad{background:linear-gradient(90deg,var(--amber),var(--hot) 35%,var(--green) 70%,var(--lime));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(14px);background:rgba(6,17,13,.6);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-family:var(--hf);font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px;color:var(--txt);text-decoration:none}
+.logo i{width:26px;height:26px;border-radius:8px;background:conic-gradient(from 200deg,var(--hot),var(--amber),var(--green),var(--lime),var(--hot));display:block}
+.menu{display:flex;gap:22px}
+.menu a{color:var(--mut);text-decoration:none;font-size:14px;font-weight:600}
+.menu a:hover{color:var(--txt)}
+@media(max-width:860px){.menu{display:none}}
+
+/* HERO */
+#hero{min-height:100vh;padding:0;display:flex;align-items:center;overflow:hidden}
+#heat{position:absolute;inset:0;width:100%;height:100%}
+.hero-veil{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,transparent 0,rgba(6,17,13,.55) 60%),linear-gradient(180deg,rgba(6,17,13,.2),var(--bg) 96%)}
+.hero-in{position:relative;z-index:2;padding-top:90px;padding-bottom:60px;width:100%}
+.badge{display:inline-flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.18);border-radius:99px;padding:7px 16px;font-size:13px;color:#fff;background:rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.badge b{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.3}}
+#hero h1{font-size:clamp(40px,8vw,104px);font-weight:800;margin:22px 0 10px;text-shadow:0 8px 40px rgba(0,0,0,.4)}
+#hero h1 .sub{display:block;font-size:.34em;font-weight:600;line-height:1.3;margin-top:14px;color:#f2fff7;max-width:900px}
+.hero-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:34px;align-items:center}
+.btn{font-family:var(--hf);font-size:14px;font-weight:600;border:0;border-radius:14px;padding:16px 24px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:.25s}
+.btn-g{background:var(--green);color:#03140c;box-shadow:0 10px 40px -10px var(--green)}
+.btn-g:hover{transform:translateY(-2px)}
+.btn-o{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.thermo{display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:10px 18px;backdrop-filter:blur(8px)}
+.thermo .t{font-family:var(--hf);font-size:30px;font-weight:800;transition:color .6s}
+.thermo small{display:block;color:var(--mut);font-size:12px;line-height:1.3}
+.city{position:absolute;left:0;right:0;bottom:0;z-index:1;width:100%;height:auto;pointer-events:none}
+.city .roof{transition:fill 1.2s ease}
+.city.green .roof{fill:#2ee59d}
+.scroll-cue{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:3;font-size:12px;color:var(--mut);letter-spacing:.2em}
+
+/* ESSAY */
+.essay{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.essay blockquote{font-family:var(--hf);font-size:clamp(20px,2.4vw,30px);line-height:1.4;font-weight:400}
+.essay blockquote em{font-style:normal;color:var(--green)}
+.essay p{color:var(--mut);margin-bottom:14px}
+@media(max-width:860px){.essay{grid-template-columns:1fr}}
+
+/* ABSTRACT */
+.tabs{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:5px;margin-bottom:26px}
+.tabs button{font-family:var(--hf);font-size:13px;background:none;border:0;color:var(--mut);padding:10px 20px;border-radius:10px;cursor:pointer}
+.tabs button.on{background:var(--green);color:#03140c}
+.abs{background:linear-gradient(160deg,var(--card),#0a1a14);border:1px solid var(--line);border-radius:28px;padding:44px;position:relative;overflow:hidden}
+.abs:after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(var(--green),transparent 70%);opacity:.18}
+.abs p{margin-bottom:14px;max-width:900px}
+.abs .pane{display:none}.abs .pane.on{display:block;animation:fade .5s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+
+/* PASSPORT */
+.grid{display:grid;gap:18px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:960px){.g4,.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;transition:.3s;position:relative}
+.card:hover{border-color:rgba(46,229,157,.5);transform:translateY(-4px)}
+.card .n{font-family:var(--hf);font-size:13px;color:var(--lime);margin-bottom:12px}
+.card h3{font-size:17px;margin-bottom:10px}
+.card p{color:var(--mut);font-size:15px}
+.goal{background:linear-gradient(120deg,#0f2b20,#132a1c 60%,#2a1d0f);border:1px solid rgba(255,183,3,.25);border-radius:26px;padding:34px;margin-bottom:22px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.goal .ic{width:64px;height:64px;border-radius:18px;background:var(--amber);display:grid;place-items:center;font-size:30px}
+.goal h3{font-size:22px;margin-bottom:6px}
+.hyp{margin-top:22px;border-left:4px solid var(--green);padding:20px 26px;background:rgba(46,229,157,.06);border-radius:0 18px 18px 0}
+.hyp b{font-family:var(--hf);color:var(--green);font-size:14px;letter-spacing:.1em}
+
+/* ROOF */
+.roofbox{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+@media(max-width:900px){.roofbox{grid-template-columns:1fr}}
+.layer{cursor:pointer;transition:.3s}
+.layer:hover,.layer.on{filter:brightness(1.35)}
+.linfo{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;min-height:220px}
+.linfo h3{color:var(--green);margin-bottom:10px}
+.lbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.lbtns button{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:99px;padding:8px 14px;font-family:var(--bf);font-size:13px;cursor:pointer}
+.lbtns button.on{background:var(--green);color:#03140c;border-color:var(--green)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:40px}
+.vs .card{padding:28px}
+.vs .tag{display:inline-block;font-size:12px;padding:4px 10px;border-radius:99px;margin-bottom:12px;font-weight:700}
+
+/* UHI */
+.causes .card .ico{font-size:30px;margin-bottom:10px}
+.uhi-wrap{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:30px;margin-top:30px}
+.fig{font-size:13px;color:var(--mut);margin-top:10px;font-style:italic}
+
+/* GIS */
+.gis{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media(max-width:900px){.gis{grid-template-columns:1fr}}
+.stack{position:relative;height:440px;perspective:1200px}
+.plane{position:absolute;left:10%;width:80%;height:220px;border-radius:18px;transform:rotateX(58deg) rotateZ(-38deg);transition:.6s cubic-bezier(.2,.8,.2,1);border:1px solid rgba(255,255,255,.25);overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.plane span{position:absolute;right:14px;bottom:10px;font-family:var(--hf);font-size:12px;background:rgba(0,0,0,.5);padding:4px 10px;border-radius:8px}
+.stack.open .p1{top:0}.stack.open .p2{top:110px}.stack.open .p3{top:220px}
+.p1,.p2,.p3{top:110px}
+.chk{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.chk label{display:flex;gap:12px;align-items:center;cursor:pointer;background:var(--card);border:1px solid var(--line);padding:12px 16px;border-radius:14px}
+.chk input{accent-color:var(--green);width:18px;height:18px}
+
+/* DATA */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.tbl th,.tbl td{padding:16px 18px;text-align:left;border-bottom:1px solid var(--line)}
+.tbl th{font-family:var(--hf);font-size:12px;font-weight:600;color:var(--lime);letter-spacing:.06em;background:rgba(0,0,0,.2)}
+.tbl tr:last-child td{border-bottom:0}
+.pill{padding:4px 12px;border-radius:99px;font-weight:800;color:#111}
+.chartbox{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px}
+.insight{display:flex;gap:16px;align-items:center;margin-top:18px;background:linear-gradient(90deg,rgba(46,229,157,.12),transparent);border-radius:16px;padding:16px 20px}
+.insight b{font-family:var(--hf);font-size:30px;color:var(--green)}
+
+/* SIM */
+#sim{background:radial-gradient(ellipse at 80% 0,rgba(46,229,157,.12),transparent 50%),radial-gradient(ellipse at 0 100%,rgba(255,90,54,.12),transparent 50%),var(--bg2)}
+.simgrid{display:grid;grid-template-columns:1fr 1.1fr;gap:28px}
+@media(max-width:960px){.simgrid{grid-template-columns:1fr}}
+.panel{background:rgba(6,17,13,.7);border:1px solid var(--line);border-radius:26px;padding:28px}
+.dists{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 24px}
+.dists button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:12px 6px;cursor:pointer;font-family:var(--hf);font-size:13px}
+.dists button small{display:block;font-family:var(--bf);color:var(--mut);font-size:12px;margin-top:3px}
+.dists button.on{border-color:var(--green);background:rgba(46,229,157,.12)}
+input[type=range]{width:100%;-webkit-appearance:none;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--hot),var(--amber),var(--green));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:5px solid var(--green);cursor:pointer;box-shadow:0 0 0 6px rgba(46,229,157,.2)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:5px solid var(--green);cursor:pointer}
+.pct{font-family:var(--hf);font-size:56px;font-weight:800;color:var(--green);line-height:1}
+.formula{font-family:var(--hf);font-size:15px;background:rgba(0,0,0,.35);border:1px dashed rgba(184,243,74,.4);border-radius:14px;padding:16px;margin-top:22px;text-align:center}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kpi small{color:var(--mut);font-size:12px;display:block}
+.kpi b{font-family:var(--hf);font-size:24px}
+.mapgrid{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;border-radius:16px;overflow:hidden;padding:3px;background:rgba(0,0,0,.4)}
+.mapgrid div{aspect-ratio:1;border-radius:3px;transition:background .5s}
+.legend{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut);margin-top:10px}
+.legend i{flex:1;height:8px;border-radius:9px;background:linear-gradient(90deg,#1e9e6a,#9ef01a,#ffd23f,#ff8c1a,#e3261b)}
+.scen{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;height:170px;margin-top:16px}
+.scen div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:6px;font-size:12px;color:var(--mut)}
+.scen .bar{width:100%;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,var(--green),#0e6b48);transition:height .6s}
+.scen b{font-family:var(--hf);color:var(--txt);font-size:14px}
+
+/* APP */
+.app{display:grid;grid-template-columns:.8fr 1.2fr;gap:50px;align-items:center}
+@media(max-width:900px){.app{grid-template-columns:1fr}}
+.phone{width:290px;height:590px;margin:0 auto;border-radius:44px;background:#000;padding:12px;box-shadow:0 40px 80px -20px rgba(46,229,157,.35),inset 0 0 0 2px #333;position:relative}
+.screen{width:100%;height:100%;border-radius:34px;background:linear-gradient(180deg,#0d2a1f,#081711);overflow:hidden;position:relative;padding:38px 16px 70px}
+.screen .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:22px;background:#000;border-radius:20px}
+.scr{display:none}.scr.on{display:block;animation:fade .4s}
+.scr h4{font-family:var(--hf);font-size:15px;margin-bottom:12px}
+.row{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;font-size:13px;align-items:center}
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:62px;background:#0a1f17;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.tabbar button{background:none;border:0;color:var(--mut);font-size:10px;cursor:pointer;font-family:var(--bf)}
+.tabbar button span{display:block;font-size:18px}
+.tabbar button.on{color:var(--green)}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.feat div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;font-size:15px}
+.feat div b{display:block;font-family:var(--hf);font-size:14px;margin-bottom:4px}
+
+/* FINAL */
+.conc{background:linear-gradient(135deg,#0f2b20,#06110d);border:1px solid var(--line);border-radius:30px;padding:50px}
+.conc p{color:#cfe6da;margin-bottom:16px;font-size:18px}
+.refs li{margin:0 0 12px 22px;color:var(--mut);font-size:15px}
+footer{border-top:1px solid var(--line);padding:50px 0;color:var(--mut);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
+.reveal{opacity:0;transform:translateY(30px);transition:1s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#hero"><i></i>GREEN ROOF</a>
+  <div class="menu">
+    <a href="#abstract">Аңдатпа</a><a href="#passport">Зерттеу</a><a href="#theory">Теория</a><a href="#gis">Модельдеу</a><a href="#data">Деректер</a><a href="#sim">Симулятор</a><a href="#app">Қосымша</a><a href="#final">Қорытынды</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="heat"></canvas>
+  <div class="hero-veil"></div>
+  <svg class="city" id="city" viewBox="0 0 1440 260" preserveAspectRatio="none">
+    <g fill="#0a1d15" stroke="#173a2b">
+      <rect x="0" y="150" width="90" height="110"/><rect x="100" y="100" width="70" height="160"/><rect x="180" y="170" width="110" height="90"/>
+      <rect x="300" y="70" width="80" height="190"/><rect x="390" y="130" width="120" height="130"/><rect x="520" y="90" width="66" height="170"/>
+      <rect x="596" y="160" width="140" height="100"/><rect x="746" y="60" width="90" height="200"/><rect x="846" y="120" width="120" height="140"/>
+      <rect x="976" y="150" width="100" height="110"/><rect x="1086" y="80" width="80" height="180"/><rect x="1176" y="140" width="130" height="120"/><rect x="1316" y="105" width="124" height="155"/>
+    </g>
+    <g class="roof" fill="#ff5a36">
+      <rect x="0" y="144" width="90" height="7" rx="3"/><rect x="180" y="164" width="110" height="7" rx="3"/><rect x="390" y="124" width="120" height="7" rx="3"/>
+      <rect x="596" y="154" width="140" height="7" rx="3"/><rect x="846" y="114" width="120" height="7" rx="3"/><rect x="976" y="144" width="100" height="7" rx="3"/><rect x="1176" y="134" width="130" height="7" rx="3"/><rect x="1316" y="99" width="124" height="7" rx="3"/>
+    </g>
+  </svg>
+  <div class="wrap hero-in">
+    <div class="badge"><b></b>Ғылыми жоба · Экология бағыты · 2026–2027</div>
+    <h1><span class="grad">Green Roof</span>
+      <span class="sub">Жасыл шатырлардың қала температурасын төмендету мүмкіндігін географиялық модельдеу</span></h1>
+    <div class="hero-row">
+      <button class="btn btn-g" id="greenify">🌿 Шатырларды жасылдандыру</button>
+      <a class="btn btn-o" href="#sim">Симуляторды ашу →</a>
+      <div class="thermo"><div class="t" id="heroT">41.0°</div><div><small>Жер беті температурасы<br><span id="heroS">ыстық аудан (LST)</span></small></div></div>
+    </div>
+  </div>
+  <div class="scroll-cue">ТӨМЕН ЖЫЛЖЫТЫҢЫЗ ↓</div>
+</section>
+
+<!-- ESSAY -->
+<section id="essay"><div class="wrap essay reveal">
+  <blockquote>Бетон мен асфальт күн ыстығын жинайды. <em>Өсімдік</em> оны көлеңке мен булануға айналдырады. Ал <em>карта</em> қай жерге шатырды жасылдандыру керегін көрсетеді.</blockquote>
+  <div>
+    <div class="kicker">Эссе</div>
+    <p>Қазіргі кезде заманауи технологиялар қала өмірінің көптеген саласында қолданылып, қоршаған ортаны тиімді бақылауға көмектесіп келеді. Солардың бірі — Green Roof, яғни жасыл шатыр жүйесі.</p>
+    <p>Жасыл шатырлар күн сәулесінің әсерін азайтып, ғимараттың қатты қызып кетуіне жол бермейді. Ал географиялық ақпараттық жүйелер қаланың әр бөлігіндегі температураны картадан көрсетуге мүмкіндік береді.</p>
+  </div>
+</div></section>
+
+<!-- ABSTRACT -->
+<section id="abstract"><div class="wrap reveal">
+  <div class="kicker">Аңдатпа · Аннотация · Abstract</div>
+  <h2>Жоба туралы қысқаша</h2>
+  <div class="tabs" id="absTabs"><button class="on" data-l="kk">ҚАЗ</button><button data-l="ru">РУС</button><button data-l="en">ENG</button></div>
+  <div class="abs">
+    <div class="pane on" data-l="kk">
+      <p>Бұл зерттеу жұмысы қаладағы жасыл шатырлардың ауа температурасын төмендетуге қаншалықты әсер ететінін географиялық модельдеу арқылы қарастырады.</p>
+      <p><b>Мақсаты</b> — жасыл шатырлардың қала температурасына әсерін анықтап, олардың ыстықты азайтудағы мүмкіндігін географиялық модельдеу арқылы көрсету.</p>
+      <p>Жұмыста географиялық ақпараттық жүйелер, картографиялық әдістер және кеңістіктік модельдеу тәсілдері қолданылды. Нәтижесінде жасыл шатырлардың қаладағы ыстықты белгілі бір деңгейде азайтатыны анықталды: өсімдіктер күн сәулесінің әсерін азайтып, судың булануы арқылы қоршаған ортаны салқындатады.</p>
+      <p>Нәтижелерді қала құрылысында, жаңа ғимараттарды жоспарлауда және жасыл аймақтарды көбейтуде пайдалануға болады.</p>
+    </div>
+    <div class="pane" data-l="ru">
+      <p>В данной исследовательской работе с помощью географического моделирования изучается влияние зеленых крыш на снижение температуры воздуха в городе.</p>
+      <p><b>Цель</b> — определить влияние зеленых крыш на температуру в городе и продемонстрировать их способность снижать нагрев с помощью географического моделирования.</p>
+      <p>Использовались географические информационные системы, картографические методы и методы пространственного моделирования. Исследование показало, что зеленые крыши в определенной степени помогают снизить перегрев города: растения уменьшают воздействие солнечного света и охлаждают среду за счет испарения воды.</p>
+      <p>Результаты могут быть использованы при городском планировании, проектировании новых зданий и увеличении зеленых зон.</p>
+    </div>
+    <div class="pane" data-l="en">
+      <p>This research examines the impact of green roofs on reducing air temperature in the city using geographic modeling.</p>
+      <p><b>Objective</b> — to determine the impact of green roofs on city temperature and demonstrate their ability to reduce heat through geographic modeling.</p>
+      <p>Geographic information systems, cartographic methods and spatial modeling were used. The study found that green roofs help reduce urban heat to a certain extent: plants reduce the impact of sunlight and cool the environment through water evaporation.</p>
+      <p>The results can be used in urban planning, designing new buildings and expanding green areas.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- PASSPORT -->
+<section id="passport"><div class="wrap">
+  <div class="reveal">
+    <div class="kicker">Зерттеу паспорты</div>
+    <h2>Мақсат, міндеттер, гипотеза</h2>
+  </div>
+  <div class="goal reveal"><div class="ic">🎯</div><div><h3>Зерттеудің мақсаты</h3><p style="color:#d6eadf">Жасыл шатырлардың қала температурасына әсерін зерттеу және олардың температураны төмендету мүмкіндігін географиялық модельдеу арқылы анықтау.</p></div></div>
+  <div class="grid g4 reveal">
+    <div class="card"><div class="n">01</div><h3>Принципті зерттеу</h3><p>Жасыл шатырлардың ерекшеліктері мен жұмыс істеу принципі.</p></div>
+    <div class="card"><div class="n">02</div><h3>Температура картасы</h3><p>Қала аумағындағы температураның таралуын географиялық деректер арқылы анықтау.</p></div>
+    <div class="card"><div class="n">03</div><h3>Байланысты салыстыру</h3><p>Жасыл шатырлардың орналасуы мен температура көрсеткіштері арасындағы байланыс.</p></div>
+    <div class="card"><div class="n">04</div><h3>Тиімді аумақтар</h3><p>Модельдеу арқылы жасыл шатырды орналастыруға қолайлы жерлерді анықтау.</p></div>
+  </div>
+  <div class="hyp reveal"><b>ГИПОТЕЗА</b><p style="margin-top:6px">Егер қаладағы ғимараттардың шатырларына өсімдіктер отырғызылса, онда күн сәулесін сіңіру және судың булануы арқылы кейбір аумақтардағы температура төмендеуі мүмкін. Бұл әсерді географиялық модельдеу арқылы анықтауға болады.</p></div>
+  <div class="grid g3 reveal" style="margin-top:22px">
+    <div class="card"><div class="n">ӨЗЕКТІЛІГІ</div><p>Қалаларда жазғы ыстық күшейіп келеді. Ғимараттар мен асфальт күн сәулесін сіңіріп, кейбір бөліктерді қатты қыздырады.</p></div>
+    <div class="card"><div class="n">ЖАҢАЛЫҒЫ</div><p>Температура көрсеткіштері мен жасыл шатырлардың орналасуы картада салыстырылып, ықтимал әсері сандық модельмен бағаланады.</p></div>
+    <div class="card"><div class="n">ПРАКТИКАЛЫҚ МАҢЫЗЫ</div><p>Нәтижелер қала құрылысында, жаңа ғимараттарды жоспарлауда және ыстық аудандарды анықтауда қолданылады.</p></div>
+    <div class="card"><div class="n">НЫСАНЫ</div><p>Қала аумағындағы жасыл шатырлар және олардың қоршаған орта температурасына ықпалы.</p></div>
+    <div class="card"><div class="n">ӘДІСТЕРІ</div><p>Әдебиет талдау, деректерді жинау және салыстыру, картографиялық әдіс, ГАЖ, кеңістіктік модельдеу.</p></div>
+    <div class="card"><div class="n">НӘТИЖЕСІ</div><p>Жасыл шатырлардың салқындату әсерін есептейтін мобильді қосымша мен температура моделі.</p></div>
+  </div>
+</div></section>
+
+<!-- THEORY 1.1 -->
+<section id="theory"><div class="wrap">
+  <div class="reveal"><div class="kicker">І. Теориялық бөлім · 1.1</div><h2>Жасыл шатыр неден тұрады?</h2>
+  <p class="lead">Қабатты басыңыз — әр қабаттың қызметі ашылады. Өсімдік пен субстрат шатырдың бірден қатты қызуына кедергі болады.</p></div>
+  <div class="roofbox reveal" style="margin-top:34px">
+    <svg viewBox="0 0 640 400" id="roofsvg" style="width:100%">
+      <defs>
+        <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb703"/><stop offset="1" stop-color="#ffb703" stop-opacity="0"/></linearGradient>
+      </defs>
+      <circle cx="470" cy="50" r="30" fill="#ffb703"/>
+      <g stroke="url(#sun)" stroke-width="4" stroke-linecap="round">
+        <line x1="440" y1="80" x2="360" y2="150"/><line x1="455" y1="88" x2="400" y2="160"/><line x1="425" y1="70" x2="320" y2="140"/>
+      </g>
+      <g fill="#7fe3ff" opacity=".8"><circle cx="150" cy="120" r="5"><animate attributeName="cy" values="160;90" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="220" cy="120" r="4"><animate attributeName="cy" values="165;95" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="3s" repeatCount="indefinite"/></circle><circle cx="300" cy="120" r="5"><animate attributeName="cy" values="160;85" dur="2.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="2.7s" repeatCount="indefinite"/></circle></g>
+      <text x="120" y="80" fill="#7fe3ff" font-size="13" font-family="Manrope, Inter, sans-serif">булану ↑ салқындату</text>
+      <g class="layer" data-i="0">
+        <path d="M40 175 q15 -35 30 0 q15 -45 30 0 q15 -30 30 0 q15 -50 30 0 q15 -35 30 0 q15 -45 30 0 q15 -30 30 0 q15 -40 30 0 q15 -35 30 0 q15 -45 30 0 q15 -30 30 0 q15 -40 30 0 q15 -35 30 0 q15 -30 30 0 q15 -40 30 0 q15 -35 30 0 v8 h-480z" fill="#2ee59d"/>
+        <rect x="40" y="178" width="480" height="10" fill="#22b97c"/>
+      </g>
+      <rect class="layer" data-i="1" x="40" y="188" width="480" height="44" fill="#7a5233"/>
+      <rect class="layer" data-i="2" x="40" y="232" width="480" height="12" fill="#d9d4c7"/>
+      <g class="layer" data-i="3"><rect x="40" y="244" width="480" height="26" fill="#3a7bd5"/><path d="M40 257 h480" stroke="#9fd0ff" stroke-dasharray="14 10" stroke-width="3"/></g>
+      <rect class="layer" data-i="4" x="40" y="270" width="480" height="14" fill="#111"/>
+      <rect class="layer" data-i="5" x="40" y="284" width="480" height="60" fill="#5d6a72"/>
+      <g font-family="Manrope, Inter, sans-serif" font-size="12" fill="#e8f5ee">
+        <text x="530" y="168">Өсімдік</text><text x="530" y="214">Субстрат</text><text x="530" y="242">Сүзгі</text><text x="530" y="262">Дренаж</text><text x="530" y="281">Гидрооқшау</text><text x="530" y="318">Шатыр</text>
+      </g>
+      <text x="40" y="380" fill="#9db8aa" font-size="13" font-family="Manrope, Inter, sans-serif" font-style="italic">Сурет 1. Жасыл шатырдың қабаттық құрылымы</text>
+    </svg>
+    <div>
+      <div class="lbtns" id="lbtns"></div>
+      <div class="linfo" id="linfo"></div>
+    </div>
+  </div>
+  <div class="vs reveal">
+    <div class="card"><span class="tag" style="background:#b8f34a;color:#122">ЭКСТЕНСИВТІ</span><h3>Жеңіл, күтімі аз</h3><p>Субстрат 6–15 см. Седум, шөптесін өсімдіктер. Су аз қажет, ғимаратқа салмағы аз — көп үйге қолайлы.</p></div>
+    <div class="card"><span class="tag" style="background:#2ee59d;color:#122">ИНТЕНСИВТІ</span><h3>Шатырдағы бақ</h3><p>Топырақ қалың, шөп, бұта, шағын ағаштар. Салқындату күштірек, бірақ көтергіш құрылымдар алдын ала есептелуі керек.</p></div>
+  </div>
+</div></section>
+
+<!-- THEORY 1.2 -->
+<section id="uhi" style="padding-top:20px"><div class="wrap">
+  <div class="reveal"><div class="kicker">1.2 · Қалалық жылу аралы</div><h2>Неге қала қызады?</h2></div>
+  <div class="grid g4 causes reveal">
+    <div class="card"><div class="ico">🛣️</div><h3>Асфальт пен бетон</h3><p>Күн сәулесін жинап, күн батқаннан кейін де жылуын сақтайды.</p></div>
+    <div class="card"><div class="ico">🌳</div><h3>Жасыл желектің аздығы</h3><p>Көлеңке мен булану жоқ жерде аумақ тез қызады.</p></div>
+    <div class="card"><div class="ico">🚗</div><h3>Көлік пен техника</h3><p>Қозғалтқыштар, кондиционерлер қосымша жылу бөледі.</p></div>
+    <div class="card"><div class="ico">🏢</div><h3>Тығыз құрылыс</h3><p>Желдің жолын бөгеп, жылуды көшелерде ұстап қалады.</p></div>
+  </div>
+  <div class="uhi-wrap reveal">
+    <svg viewBox="0 0 1000 260" style="width:100%">
+      <defs><linearGradient id="uh" x1="0" x2="1"><stop offset="0" stop-color="#2ee59d"/><stop offset=".5" stop-color="#ff5a36"/><stop offset="1" stop-color="#2ee59d"/></linearGradient></defs>
+      <path d="M20 190 C150 188 220 180 300 150 C380 110 420 70 500 62 C580 70 620 110 700 150 C780 180 850 188 980 190" fill="none" stroke="url(#uh)" stroke-width="6" stroke-linecap="round"/>
+      <g fill="#183a2c"><rect x="60" y="215" width="60" height="25" rx="4"/><rect x="200" y="200" width="40" height="40"/><rect x="250" y="195" width="35" height="45"/><rect x="380" y="160" width="40" height="80"/><rect x="430" y="140" width="40" height="100"/><rect x="480" y="120" width="40" height="120"/><rect x="530" y="145" width="40" height="95"/><rect x="580" y="165" width="40" height="75"/><rect x="720" y="195" width="35" height="45"/><rect x="765" y="205" width="40" height="35"/><rect x="880" y="215" width="60" height="25" rx="4"/></g>
+      <g font-family="Manrope, Inter, sans-serif" font-size="14" fill="#9db8aa"><text x="40" y="175">Ауыл / жасыл аймақ</text><text x="440" y="40" fill="#ff8a6a" font-weight="700">Қала орталығы +3…+6 °C</text><text x="830" y="175">Ауыл / жасыл аймақ</text></g>
+    </svg>
+    <div class="fig">Сурет 2. Қалалық жылу аралы (Urban Heat Island) профилінің кескін сызбасы</div>
+  </div>
+</div></section>
+
+<!-- GIS -->
+<section id="gis"><div class="wrap gis">
+  <div class="reveal">
+    <div class="kicker">ІІ. Географиялық модельдеу · 2.1–2.2</div>
+    <h2>Карта қабаттары бір-бірін «сөйлетеді»</h2>
+    <p class="lead">ГАЖ әртүрлі ақпаратты бір картаға жинайды: бір қабатта ғимараттар, екіншісінде температура, үшіншісінде жасыл аумақтар. Қабаттарды салыстырғанда заңдылық көрінеді.</p>
+    <div class="chk">
+      <label><input type="checkbox" checked data-p="p1"> 🏢 Ғимараттар мен шатырлар қабаты</label>
+      <label><input type="checkbox" checked data-p="p2"> 🌡️ Жер беті температурасы (LST)</label>
+      <label><input type="checkbox" checked data-p="p3"> 🌿 Жасыл аумақтар мен жасыл шатырлар</label>
+    </div>
+    <button class="btn btn-o" id="explode" style="margin-top:18px">Қабаттарды ажырату ⇅</button>
+  </div>
+  <div class="stack open reveal" id="stack">
+    <div class="plane p3" style="z-index:1;background:#0b2a1d" id="p3"></div>
+    <div class="plane p2" style="z-index:2" id="p2"></div>
+    <div class="plane p1" style="z-index:3;background:rgba(10,20,16,.35)" id="p1"></div>
+  </div>
+</div></section>
+
+<!-- DATA -->
+<section id="data"><div class="wrap">
+  <div class="reveal"><div class="kicker">ІІІ. Практикалық бөлім · 3.1</div><h2>Аудандар бойынша деректер</h2>
+  <p class="lead">Жасыл шатырлар мен жасыл аумақ көп аудандарда орташа температура төмен.</p></div>
+  <div class="grid g2 reveal" style="margin-top:30px;align-items:start">
+    <div>
+      <table class="tbl"><thead><tr><th>Аудан</th><th>Орташа t, °C</th><th>Жасыл шатыр</th><th>Жасыл аумақ</th></tr></thead>
+      <tbody id="tbody"></tbody></table>
+      <div class="insight"><b id="rval">r</b><div><b style="font-size:15px;color:var(--txt);font-family:var(--hf)">Корреляция коэффициенті</b><br><span style="color:var(--mut);font-size:14px">жасыл шатыр саны ↔ температура: күшті кері байланыс</span></div></div>
+    </div>
+    <div class="chartbox"><svg id="chart" viewBox="0 0 520 335" style="width:100%"></svg><div class="fig">Диаграмма 1. Температура мен жасыл шатырлар саны</div></div>
+  </div>
+</div></section>
+
+<!-- SIMULATOR -->
+<section id="sim"><div class="wrap">
+  <div class="reveal"><div class="kicker">3.2 · Интерактивті модель</div><h2>Өзің модельдеп көр</h2>
+  <p class="lead">Ауданды таңдап, шатырлардың қанша пайызын жасылдандыратыныңызды белгілеңіз. Модель Susca et al. (2011) және Santamouris (2014) тәсілі негізінде күтілетін салқындатуды есептейді.</p></div>
+  <div class="simgrid reveal" style="margin-top:30px">
+    <div class="panel">
+      <b style="font-family:var(--hf);font-size:14px">1. Ауданды таңдаңыз</b>
+      <div class="dists" id="dists"></div>
+      <b style="font-family:var(--hf);font-size:14px">2. Жасылдандыру үлесі</b>
+      <div style="display:flex;align-items:end;gap:10px;margin:14px 0"><div class="pct" id="pct">25</div><div style="font-family:var(--hf);font-size:22px;color:var(--green)">%</div><div style="margin-left:auto;color:var(--mut);font-size:13px;text-align:right" id="area"></div></div>
+      <input type="range" min="0" max="100" value="25" id="rng">
+      <div class="kpis">
+        <div class="kpi"><small>Қазіргі LST</small><b id="k1" style="color:var(--hot)"></b></div>
+        <div class="kpi"><small>Салқындату ΔT</small><b id="k2" style="color:var(--ice)"></b></div>
+        <div class="kpi"><small>Жаңа LST</small><b id="k3" style="color:var(--green)"></b></div>
+      </div>
+      <div class="formula">ΔT = α × f × (1 + β × UHI)<br><span style="font-size:12px;color:var(--mut);font-family:var(--bf)">α = 2.0 °C · β = 0.1 · f — жасылдандырылған үлес · UHI — жылу аралы қарқындылығы</span></div>
+    </div>
+    <div class="panel">
+      <b style="font-family:var(--hf);font-size:14px">Аудан картасы (модель)</b>
+      <div class="mapgrid" id="map" style="margin-top:14px"></div>
+      <div class="legend">салқын<i></i>ыстық</div>
+      <b style="font-family:var(--hf);font-size:14px;display:block;margin-top:22px">Сценарийлер: 10 · 25 · 50 · 100%</b>
+      <div class="scen" id="scen"></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- APP -->
+<section id="app"><div class="wrap app">
+  <div class="phone reveal"><div class="screen"><div class="notch"></div>
+    <div class="scr on" data-s="0"><h4>🏙️ Қалалар</h4><div id="appCities"></div></div>
+    <div class="scr" data-s="1"><h4>🧮 Планер</h4><div class="row"><span>Таңдалған ғимарат</span><b>14</b></div><div class="row"><span>Жалпақ шатыр</span><b>18 400 м²</b></div><div class="row"><span>Жасылдандыру</span><b>50 %</b></div><div class="row" style="background:rgba(46,229,157,.18)"><span>ΔT</span><b style="color:#2ee59d">−1.6 °C</b></div><div class="row"><span>Жаңа LST</span><b>39.4 °C</b></div><div class="row" style="justify-content:center;background:#2ee59d;color:#03140c;font-weight:800">💾 Жоспарды сақтау</div></div>
+    <div class="scr" data-s="2"><h4>📊 Сценарийлер</h4><div id="appScen"></div></div>
+    <div class="scr" data-s="3"><h4>📖 Ақпарат</h4><div class="row" style="display:block">Модель: ΔT = α·f·(1+β·UHI)</div><div class="row" style="display:block">Негіз: Susca 2011, Santamouris 2014</div><div class="row" style="display:block">Құрғақ-континентальды климатқа бейімделген</div><div class="row" style="display:block">Деректер офлайн сақталады</div></div>
+    <div class="tabbar" id="tabbar"><button class="on" data-s="0"><span>🏙️</span>Қалалар</button><button data-s="1"><span>🧮</span>Планер</button><button data-s="2"><span>📊</span>Сценарий</button><button data-s="3"><span>📖</span>Ақпарат</button></div>
+  </div></div>
+  <div class="reveal">
+    <div class="kicker">Авторлық өнім</div>
+    <h2>Green Roof мобильді қосымшасы</h2>
+    <p class="lead" style="margin-bottom:26px">Қосымша қала аудандарының спутниктік жер беті температурасы (LST) деректерін пайдаланып, жасыл шатырға ауыстырылған аудан температураны қанша °C төмендететінін есептейді. Телефон экранындағы белгішелерді басып көріңіз.</p>
+    <div class="feat">
+      <div><b>🏙️ Қалалар мен аудандар</b>LST, жылу аралы, шатыр ауданы</div>
+      <div><b>🏢 Ғимараттар</b>Шатыр ауданы мен жарамдылығы</div>
+      <div><b>🧮 Планер</b>Ғимараттарды таңдап, сценарий құру</div>
+      <div><b>📊 Сценарийлер</b>10–100% салқындату әсерін салыстыру</div>
+      <div><b>💾 Сақталған жоспарлар</b>Жергілікті дерекқорда, офлайн</div>
+      <div><b>🤖 ЖИ-түсіндірме</b>Нәтижені қарапайым тілмен түсіндіру</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FINAL -->
+<section id="final"><div class="wrap">
+  <div class="grid g2 reveal" style="margin-bottom:30px">
+    <div class="card" style="padding:34px"><div class="n">ҰСЫНЫС</div><h3 style="font-size:22px">Алдымен — ең ыстық аудандар</h3><p>Жасыл шатырларды температурасы жоғары, ғимараттары тығыз аудандарда көбейту. Шатырдың салмақ көтеру қабілетін, суару мен күтімді алдын ала есептеу қажет. Мектептер, қоғамдық ғимараттар және жаңа үйлер — басым нысандар.</p></div>
+    <div class="card" style="padding:34px"><div class="n">ПРАКТИКАЛЫҚ КЕҢЕС</div><h3 style="font-size:22px">Жалпақ шатыр + 25–50%</h3><p>Жалпақ шатырлы ғимараттарды таңдау тиімді. 25% және 50% сценарийлерін салыстыру шығын мен әсер арасындағы тепе-теңдікті көрсетеді.</p></div>
+  </div>
+  <div class="conc reveal">
+    <div class="kicker">Қорытынды</div>
+    <h2>Жасыл шатыр — <span class="grad">салқын қала</span></h2>
+    <p>Жасыл шатырлар қаладағы ыстықтың әсерін азайтатын тәсілдердің бірі. Өсімдіктер күн сәулесін қабылдап, шатырдың қатты қызуын тежейді, ал судың булануы айналадағы ауаны салқындатады.</p>
+    <p>Қала температурасына асфальт пен бетон, жасыл аумақтың аздығы, тығыз құрылыс және көлік жылуы бірге әсер етеді. Сондықтан жасыл шатыр басқа экологиялық шаралармен бірге қолданылуы керек.</p>
+    <p>Географиялық модельдеу жасыл шатырды қай жерде орнату тиімді екенін алдын ала бағалауға мүмкіндік береді. Гипотеза расталды: жасыл шатыр үлесі артқан сайын модельдегі температура төмендейді.</p>
+  </div>
+  <div class="reveal" style="margin-top:60px">
+    <div class="kicker">Пайдаланылған әдебиеттер</div>
+    <ol class="refs">
+      <li>Kulbaeva A. A. және т.б. (2023). Ақылды қалаларды дамытудың негізгі критерийлерін факторлық талдау негізінде анықтау. <i>Buketov Business Review</i>, 110(2), 228–234.</li>
+      <li>Louis-Lucas T. et al. (2022). Role of green roofs in urban connectivity… Paris. <i>Urban Forestry &amp; Urban Greening</i>, 78, 127765.</li>
+      <li>Adilkhanova I., Santamouris M., Yun G. Y. (2024). Green roofs save energy in cities and fight regional climate change. <i>Nature Cities</i>, 1(3), 238–249.</li>
+      <li>Fang Y. et al. (2023). Assessment of green roofs' potential to improve the urban thermal environment: Beijing. <i>Environmental Research</i>, 237, 116857.</li>
+      <li>Askar A. H., Omle I., Kovács E. (2025). The role of roof angle and geographic location on the thermal performance of buildings. <i>Int. J. of Thermofluids</i>, 27, 101192.</li>
+      <li>Akter A., Rain R. T. (2025). A study on harvesting rainwater by applying green roof. <i>Cleaner Water</i>, 100137.</li>
+      <li>Scolaro T. P., Ghisi E., Silva C. M. (2024). Assessing the impact of evapotranspiration from green roofs on reducing surface temperatures. <i>J. of Building Engineering</i>, 95, 110095.</li>
+      <li>Santana T. C. et al. (2023). Green roofs are effective in cooling and mitigating urban heat islands… <i>Modeling Earth Systems and Environment</i>, 9(4), 3985–3998.</li>
+    </ol>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div><b style="color:var(--txt);font-family:var(--hf)">GREEN ROOF</b><br>Ғылыми жоба · Экология · 2026–2027 оқу жылы</div>
+  <div>Автор: Нұрболатқызы Айша, 9-сынып<br>Ғылыми жетекші: Асанова Уржамал Бейсенбековна</div>
+</div></footer>
+
+<script>
+/* ---------- data ---------- */
+const D=[ // name, airT, roofs, green%, LST, UHI, flat roof m2
+ {k:'A',t:32,r:2,g:8,lst:41.0,uhi:6.0,a:24600},
+ {k:'B',t:30,r:6,g:15,lst:38.2,uhi:3.5,a:19800},
+ {k:'C',t:28,r:10,g:24,lst:36.1,uhi:2.0,a:15200},
+ {k:'D',t:31,r:4,g:12,lst:40.0,uhi:5.0,a:21900}];
+const ALPHA=2.0,BETA=0.1;
+const dT=(f,u)=>ALPHA*f*(1+BETA*u);
+const tcol=t=>{const s=[[0,'#1e9e6a'],[.25,'#9ef01a'],[.5,'#ffd23f'],[.75,'#ff8c1a'],[1,'#e3261b']];t=Math.max(0,Math.min(1,t));for(let i=1;i<s.length;i++)if(t<=s[i][0]){const a=s[i-1],b=s[i],p=(t-a[0])/(b[0]-a[0]);const h=x=>parseInt(x,16);const c=(o)=>Math.round(h(a[1].substr(o,2))*(1-p)+h(b[1].substr(o,2))*p).toString(16).padStart(2,'0');return '#'+c(1)+c(3)+c(5)}return s[4][1]};
+
+/* ---------- hero heat canvas ---------- */
+const cv=document.getElementById('heat'),cx=cv.getContext('2d');let cool=0,coolT=0;
+const blobs=Array.from({length:14},()=>({x:Math.random(),y:Math.random()*.8,r:.12+Math.random()*.22,vx:(Math.random()-.5)*.0006,vy:(Math.random()-.5)*.0004,h:Math.random()}));
+function rs(){cv.width=innerWidth/3;cv.height=innerHeight/3}rs();addEventListener('resize',rs);
+function frame(){cool+=(coolT-cool)*.02;const w=cv.width,h=cv.height;
+ const bg=cx.createLinearGradient(0,0,0,h);bg.addColorStop(0,lerpC('#3a0d05','#03231a',cool));bg.addColorStop(1,lerpC('#130603','#02110c',cool));cx.fillStyle=bg;cx.fillRect(0,0,w,h);
+ cx.globalCompositeOperation='lighter';
+ blobs.forEach(b=>{b.x+=b.vx;b.y+=b.vy;if(b.x<-.2||b.x>1.2)b.vx*=-1;if(b.y<-.2||b.y>1)b.vy*=-1;
+  const hot=b.h>.5?['#ff3b1f','#ffb703']:['#ff6a00','#ff2d55'];const cold=b.h>.5?['#2ee59d','#5ad1ff']:['#00b86b','#b8f34a'];
+  const c=lerpC(hot[0],cold[0],cool);const g=cx.createRadialGradient(b.x*w,b.y*h,0,b.x*w,b.y*h,b.r*w);g.addColorStop(0,c+'aa');g.addColorStop(1,c+'00');cx.fillStyle=g;cx.beginPath();cx.arc(b.x*w,b.y*h,b.r*w,0,7);cx.fill()});
+ cx.globalCompositeOperation='source-over';requestAnimationFrame(frame)}
+function lerpC(a,b,t){const h=x=>parseInt(x,16);const c=o=>Math.round(h(a.substr(o,2))*(1-t)+h(b.substr(o,2))*t).toString(16).padStart(2,'0');return '#'+c(1)+c(3)+c(5)}
+frame();
+let greenOn=false;const hT=document.getElementById('heroT');
+document.getElementById('greenify').onclick=function(){greenOn=!greenOn;coolT=greenOn?1:0;document.getElementById('city').classList.toggle('green',greenOn);
+ this.textContent=greenOn?'🔥 Бастапқы күйге қайтару':'🌿 Шатырларды жасылдандыру';
+ const target=greenOn?41-dT(1,6):41;animNum(hT,parseFloat(hT.textContent),target,'°');hT.style.color=greenOn?'#2ee59d':'#fff';
+ document.getElementById('heroS').textContent=greenOn?'100% жасыл шатыр (модель)':'ыстық аудан (LST)'};
+function animNum(el,a,b,suf){const t0=performance.now();(function s(n){const p=Math.min(1,(n-t0)/1200),e=1-Math.pow(1-p,3);el.textContent=(a+(b-a)*e).toFixed(1)+suf;if(p<1)requestAnimationFrame(s)})(t0)}
+
+/* ---------- abstract tabs ---------- */
+document.querySelectorAll('#absTabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#absTabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.abs .pane').forEach(p=>p.classList.toggle('on',p.dataset.l===b.dataset.l))});
+
+/* ---------- roof layers ---------- */
+const L=[['Өсімдік қабаты','Күн сәулесін қабылдап, көлеңке береді. Жапырақтардан судың булануы (эвапотранспирация) айналадағы ауаны салқындатады.'],
+['Субстрат (топырақ)','Өсімдік тамырын ұстайды, ылғал сақтайды. Жылуды баяу өткізеді — шатыр бірден қызбайды.'],
+['Сүзгі мата','Топырақ бөлшектерін ұстап, дренаж қабатының бітелуіне жол бермейді.'],
+['Дренаж қабаты','Суды сақтайды және артығын шығарады. Жаңбыр суының бір бөлігін ұстап қалады.'],
+['Гидрооқшаулау','Шатырды судан және тамырдың енуінен қорғайды.'],
+['Ғимарат шатыры','Көтергіш құрылым. Интенсивті шатыр үшін салмақ алдын ала есептелуі қажет.']];
+const lb=document.getElementById('lbtns'),li=document.getElementById('linfo');
+function setL(i){document.querySelectorAll('.layer').forEach(x=>x.classList.toggle('on',+x.dataset.i===i));[...lb.children].forEach((b,j)=>b.classList.toggle('on',j===i));li.innerHTML='<h3>'+L[i][0]+'</h3><p style="color:var(--mut)">'+L[i][1]+'</p>'}
+L.forEach((l,i)=>{const b=document.createElement('button');b.textContent=l[0];b.onclick=()=>setL(i);lb.appendChild(b)});
+document.querySelectorAll('.layer').forEach(x=>x.onclick=()=>setL(+x.dataset.i));setL(0);
+
+/* ---------- GIS planes ---------- */
+function gridHTML(fn){let s='<div style="display:grid;grid-template-columns:repeat(12,1fr);gap:2px;padding:10px;height:100%">';for(let i=0;i<72;i++)s+=fn(i);return s+'</div>'}
+const seed=i=>{const x=Math.sin(i*12.9898)*43758.5453;return x-Math.floor(x)};
+const heatAt=i=>{const c=i%12,r=Math.floor(i/12);const d=Math.hypot(c-5.5,(r-2.5)*1.6)/7;return Math.max(0,Math.min(1,1-d+seed(i)*.25-.05))};
+document.getElementById('p2').innerHTML=gridHTML(i=>`<div style="background:${tcol(heatAt(i))};border-radius:2px;opacity:.9"></div>`)+'<span>LST</span>';
+document.getElementById('p1').innerHTML=gridHTML(i=>`<div style="background:${seed(i+7)>.45?'rgba(220,230,225,.75)':'transparent'};border-radius:2px"></div>`)+'<span>Ғимараттар</span>';
+document.getElementById('p3').innerHTML=gridHTML(i=>`<div style="background:${seed(i+3)>.62||heatAt(i)<.25?'#2ee59d':'transparent'};border-radius:50%"></div>`)+'<span>Жасыл аумақ</span>';
+document.querySelectorAll('.chk input').forEach(c=>c.onchange=()=>document.getElementById(c.dataset.p).style.opacity=c.checked?1:0);
+document.getElementById('explode').onclick=()=>document.getElementById('stack').classList.toggle('open');
+
+/* ---------- table + chart ---------- */
+document.getElementById('tbody').innerHTML=D.map(d=>`<tr><td><b>${d.k} аудан</b></td><td><span class="pill" style="background:${tcol((d.t-27)/6)}">${d.t}</span></td><td>${d.r}</td><td>${d.g}%</td></tr>`).join('');
+(function(){const x=D.map(d=>d.r),y=D.map(d=>d.t),n=4,mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2;syy+=(y[i]-my)**2}document.getElementById('rval').textContent=(sxy/Math.sqrt(sxx*syy)).toFixed(2)})();
+(function(){const s=document.getElementById('chart');const X0=50,Y0=280,W=420,H=230;let h='';
+ for(let t=26;t<=34;t+=2){const y=Y0-(t-26)/8*H;h+=`<line x1="${X0}" x2="${X0+W}" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.08)"/><text x="${X0-10}" y="${y+4}" fill="#9db8aa" font-size="12" text-anchor="end">${t}°</text>`}
+ D.forEach((d,i)=>{const bx=X0+20+i*105,bh=(d.t-26)/8*H;h+=`<rect x="${bx}" y="${Y0-bh}" width="60" height="${bh}" rx="8" fill="${tcol((d.t-27)/6)}"><animate attributeName="height" from="0" to="${bh}" dur="1s"/><animate attributeName="y" from="${Y0}" to="${Y0-bh}" dur="1s"/></rect><text x="${bx+30}" y="${Y0-bh-8}" fill="#fff" font-size="14" font-weight="700" text-anchor="middle">${d.t}°</text><text x="${bx+30}" y="${Y0+22}" fill="#e8f5ee" font-size="13" text-anchor="middle">${d.k}</text>`});
+ const pts=D.map((d,i)=>[X0+50+i*105,Y0-d.r/12*H]);h+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#2ee59d" stroke-width="3" stroke-dasharray="6 4"/>`+pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#06110d" stroke="#2ee59d" stroke-width="3"/><text x="${p[0]+12}" y="${p[1]-8}" fill="#2ee59d" font-size="12" font-weight="700">${D[i].r} 🌿</text>`).join('');
+ h+=`<rect x="${X0}" y="314" width="14" height="10" rx="3" fill="#ff8c1a"/><text x="${X0+20}" y="323" fill="#9db8aa" font-size="12">Орташа температура</text><circle cx="${X0+190}" cy="319" r="5" fill="none" stroke="#2ee59d" stroke-width="2"/><text x="${X0+200}" y="323" fill="#9db8aa" font-size="12">Жасыл шатырлар саны</text>`;
+ s.innerHTML=h})();
+
+/* ---------- simulator ---------- */
+let cur=0;const dEl=document.getElementById('dists'),rng=document.getElementById('rng'),map=document.getElementById('map');
+dEl.innerHTML=D.map((d,i)=>`<button data-i="${i}">${d.k} аудан<small>${d.lst}°C</small></button>`).join('');
+dEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{cur=+b.dataset.i;upd()});
+for(let i=0;i<16*10;i++){map.appendChild(document.createElement('div'))}
+function upd(){const d=D[cur],f=rng.value/100,dt=dT(f,d.uhi);
+ dEl.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===cur));
+ document.getElementById('pct').textContent=rng.value;document.getElementById('area').innerHTML=Math.round(d.a*f).toLocaleString('ru')+' м²<br>жасыл шатыр';
+ document.getElementById('k1').textContent=d.lst.toFixed(1)+'°';document.getElementById('k2').textContent='−'+dt.toFixed(2)+'°';document.getElementById('k3').textContent=(d.lst-dt).toFixed(1)+'°';
+ const base=(d.lst-34)/8;[...map.children].forEach((c,i)=>{const col=i%16,row=Math.floor(i/16);const dd=Math.hypot(col-7.5,(row-4.5)*1.4)/9;let v=base+(.35-dd)*.9+seed(i+cur*31)*.2;const isRoof=seed(i*3+cur)<f*.7;if(isRoof)v-=.55*(1+BETA*d.uhi)*f+.15;c.style.background=isRoof&&f>0?(v<.25?'#2ee59d':tcol(v)):tcol(v);c.style.outline=isRoof&&f>0?'1px solid rgba(46,229,157,.6)':'none'});
+ const sc=[.1,.25,.5,1],mx=dT(1,6);document.getElementById('scen').innerHTML=sc.map(s=>{const v=dT(s,d.uhi);return `<div><b>−${v.toFixed(2)}°</b><span class="bar" style="height:${v/mx*120+4}px"></span>${s*100}%</div>`}).join('')}
+rng.oninput=upd;upd();
+
+/* ---------- app mock ---------- */
+document.getElementById('appCities').innerHTML=D.map(d=>`<div class="row"><span>${d.k} аудан<br><small style="color:#9db8aa">UHI +${d.uhi}°</small></span><b style="color:${tcol((d.lst-35)/6)}">${d.lst}°</b></div>`).join('');
+document.getElementById('appScen').innerHTML=[.1,.25,.5,1].map(s=>{const v=dT(s,6);return `<div class="row"><span>${s*100}%</span><span style="flex:1;margin:0 10px;height:8px;border-radius:9px;background:linear-gradient(90deg,#2ee59d ${v/3.2*100}%,rgba(255,255,255,.1) 0)"></span><b>−${v.toFixed(1)}°</b></div>`}).join('');
+document.querySelectorAll('#tabbar button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabbar button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.dataset.s===b.dataset.s))});
+
+/* ---------- reveal ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(r=>io.observe(r));
+</script>
+</body>
+</html>
